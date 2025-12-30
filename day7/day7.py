@@ -68,7 +68,7 @@ def challenge2(diagram: list[list[str]]):
     for y in range(2, len(diagram)):
         new_beams = defaultdict(int)
         for x in beams:
-            if diagram[y][x] == "|":
+            if diagram[y][x] == "|" or diagram[y][x] == ".":
                 new_beams[x] += beams[x]
             if diagram[y][x] == "^":
                 new_beams[x - 1] += beams[x]
