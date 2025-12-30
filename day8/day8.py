@@ -22,11 +22,8 @@ def parse_input(file_name: str):
         id = 0
         for line in lines:
             coords = line[:-1].split(",")
-            boxes.append(
-                Vertex(
-                    id=id, x=float(coords[0]), y=float(coords[1]), z=float(coords[2])
-                )
-            )
+            x, y, z = map(int, coords)
+            boxes.append(Vertex(id, x, y, z))
             id += 1
 
     return boxes

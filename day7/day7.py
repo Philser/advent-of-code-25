@@ -1,3 +1,14 @@
+from collections import defaultdict
+from dataclasses import dataclass
+
+
+@dataclass
+class Vertex:
+    id: int
+    x: int
+    y: int
+
+
 def parse_input(filename: str) -> list[list[str]]:
     lines = []
     with open(filename) as f:
@@ -30,10 +41,8 @@ def challenge1(diagram: list[list[str]], output_file=None):
                 continue
 
             split_count += 1
-            if x - 1 >= 0:
-                diagram[y + 1][x - 1] = "|"
-            if x + 1 <= len(diagram[y]) - 1:
-                diagram[y + 1][x + 1] = "|"
+            diagram[y + 1][x - 1] = "|"
+            diagram[y + 1][x + 1] = "|"
 
     if output_file is not None:
         final = []
@@ -46,38 +55,34 @@ def challenge1(diagram: list[list[str]], output_file=None):
 
 
 def challenge2(diagram: list[list[str]]):
-    start_pos = 0
-    split_count = 0
+    # count the number of possible paths to get to a beam
+    # at the end, add them all together
+    # I couldnt do the challenge myself so took inspiration from 0xdf's YT channel
+    # https://www.youtube.com/watch?v=sq2OdJY3D_4&list=PLJt6nPUdQbiRZnP5UJY2bvi6OSSt62qT7&index=8
+    beams = defaultdict(int)
     for pos in range(0, len(diagram[0])):
         if diagram[0][pos] == "S":
-            start_pos = pos
+            beams[pos] = 1
             break
-    diagram[1][start_pos] = "|"
 
-    stack = []
-    for y in range(1, len(diagram) - 1):
-        for x in range(0, len(diagram[y])):
-            if diagram[y][x] != "|":
-                continue
+    for y in range(2, len(diagram)):
+        new_beams = defaultdict(int)
+        for x in beams:
+            if diagram[y][x] == "|":
+                new_beams[x] += beams[x]
+            if diagram[y][x] == "^":
+                new_beams[x - 1] += beams[x]
+                new_beams[x + 1] += beams[x]
 
-            if diagram[y + 1][x] != "^":
-                diagram[y + 1][x] = "|"
-                continue
+        beams = new_beams
 
-            if x - 1 >= 0:
-                stack.append({"pos": {'x': x, 'y': y}, "dir": "l"})
-                diagram[y + 1][x - 1] = "|"
-            if x + 1 <= len(diagram[y]) - 1:
-                stack.append({"pos": {'x': x, 'y': y}, "dir": "r"})
-                diagram[y + 1][x + 1] = "|"
-    return
+    return sum(beams.values())
 
 
 def main():
     parsed = parse_input("day7/input.txt")
-    result = challenge1(parsed)
+    result = challenge1(parsed, "day7/output.txt")
     print(f"Solution to challenge 1: {result}")
-    parsed = parse_input("day7/input.txt")
     result = challenge2(parsed)
     print(f"Solution to challenge 2: {result}")
 
